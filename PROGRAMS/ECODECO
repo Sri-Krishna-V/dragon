@@ -1,0 +1,111 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import random
+import string
+
+chars = " " + string.punctuation + string.digits + string.ascii_letters
+chars = list(chars)
+chars.append('\n')
+
+key = chars.copy()
+random.shuffle(key)
+
+
+def encrypt_message(message, password):
+    cipher_text = ""
+    for letter in message:
+        if letter == '\n':
+            cipher_text += '\n'
+        else:
+            index = chars.index(letter)
+            cipher_text += key[index]
+    return cipher_text
+
+
+def decrypt_message(message, password):
+    plain_text = ""
+    for letter in message:
+        if letter == '\n':
+            plain_text += '\n'
+        else:
+            index = key.index(letter)
+            plain_text += chars[index]
+    return plain_text
+
+
+def encrypt_file():
+    filename = filedialog.askopenfilename(initialdir="/", title="Select File",
+                                          filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+    if filename:
+        password = tk.simpledialog.askstring("Password", "Enter a password for encryption:",
+                                             show='*')
+        if password:
+            with open(filename, 'r') as file:
+                content = file.read()
+            encrypted_content = encrypt_message(content, password)
+            save_filename = filedialog.asksaveasfilename(initialdir="/", title="Save Encrypted File",
+                                                         filetypes=(("Text files", "*.txt"), ("All files", "*.*")),
+                                                         defaultextension=".txt")
+            if save_filename:
+                with open(save_filename, 'w') as file:
+                    file.write(encrypted_content)
+                messagebox.showinfo("Encryption Successful", "File encrypted and saved successfully.")
+                status_text.config(text="File encrypted and saved successfully.")
+            else:
+                messagebox.showwarning("Encryption Canceled", "File encryption was canceled.")
+                status_text.config(text="File encryption was canceled.")
+        else:
+            messagebox.showwarning("Password Required", "Please enter a password for encryption.")
+            status_text.config(text="Please enter a password for encryption.")
+
+
+def decrypt_file():
+    filename = filedialog.askopenfilename(initialdir="/", title="Select File",
+                                          filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
+    if filename:
+        password = tk.simpledialog.askstring("Password", "Enter the password for decryption:",
+                                             show='*')
+        if password:
+            with open(filename, 'r') as file:
+                content = file.read()
+            decrypted_content = decrypt_message(content, password)
+            save_filename = filedialog.asksaveasfilename(initialdir="/", title="Save Decrypted File",
+                                                         filetypes=(("Text files", "*.txt"), ("All files", "*.*")),
+                                                         defaultextension=".txt")
+            if save_filename:
+                with open(save_filename, 'w') as file:
+                    file.write(decrypted_content)
+                messagebox.showinfo("Decryption Successful", "File decrypted and saved successfully.")
+                status_text.config(text="File decrypted and saved successfully.")
+            else:
+                messagebox.showwarning("Decryption Canceled", "File decryption was canceled.")
+                status_text.config(text="File decryption was canceled.")
+        else:
+            messagebox.showwarning("Password Required", "Please enter the password for decryption.")
+            status_text.config(text="Please enter the password for decryption.")
+
+
+# Create the GUI window
+window = tk.Tk()
+window.title("File Encryption Program")
+
+# Set window dimensions
+window.geometry("200x200")
+
+# Add label for program description
+description_label = tk.Label(window, text="File Encryption Program")
+description_label.pack(pady=10)
+
+# Create buttons for file encryption and decryption
+encrypt_button = tk.Button(window, text="Encrypt File", command=encrypt_file)
+encrypt_button.pack(pady=10)
+
+decrypt_button = tk.Button(window, text="Decrypt File", command=decrypt_file)
+decrypt_button.pack(pady=10)
+
+# Add status label
+status_text = tk.Label(window, text="", fg="blue")
+status_text.pack(pady=10)
+
+# Run the GUI window
+window.mainloop()
