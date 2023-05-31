@@ -3,15 +3,14 @@ from tkinter import filedialog, messagebox
 import random
 import string
 
-chars = " " + string.punctuation + string.digits + string.ascii_letters
-chars = list(chars)
-chars.append('\n')
-
-key = chars.copy()
-random.shuffle(key)
-
-
 def encrypt_message(message, password):
+    chars = " " + string.punctuation + string.digits + string.ascii_letters
+    chars = list(chars)
+    chars.append('\n')
+    
+    key = chars.copy()
+    random.shuffle(key)
+    
     cipher_text = ""
     for letter in message:
         if letter == '\n':
@@ -21,8 +20,14 @@ def encrypt_message(message, password):
             cipher_text += key[index]
     return cipher_text
 
-
 def decrypt_message(message, password):
+    chars = " " + string.punctuation + string.digits + string.ascii_letters
+    chars = list(chars)
+    chars.append('\n')
+    
+    key = chars.copy()
+    random.shuffle(key)
+    
     plain_text = ""
     for letter in message:
         if letter == '\n':
@@ -31,7 +36,6 @@ def decrypt_message(message, password):
             index = key.index(letter)
             plain_text += chars[index]
     return plain_text
-
 
 def encrypt_file():
     filename = filedialog.askopenfilename(initialdir="/", title="Select File",
@@ -58,7 +62,6 @@ def encrypt_file():
             messagebox.showwarning("Password Required", "Please enter a password for encryption.")
             status_text.config(text="Please enter a password for encryption.")
 
-
 def decrypt_file():
     filename = filedialog.askopenfilename(initialdir="/", title="Select File",
                                           filetypes=(("Text files", "*.txt"), ("All files", "*.*")))
@@ -84,28 +87,32 @@ def decrypt_file():
             messagebox.showwarning("Password Required", "Please enter the password for decryption.")
             status_text.config(text="Please enter the password for decryption.")
 
+def create_gui():
+    # Create the GUI window
+    window = tk.Tk()
+    window.title("File Encryption Program")
 
-# Create the GUI window
-window = tk.Tk()
-window.title("File Encryption Program")
+    # Set window dimensions
+    window.geometry("200x200")
 
-# Set window dimensions
-window.geometry("200x200")
+    # Add label for program description
+    description_label = tk.Label(window, text="File Encryption Program")
+    description_label.pack(pady=10)
 
-# Add label for program description
-description_label = tk.Label(window, text="File Encryption Program")
-description_label.pack(pady=10)
+    # Create buttons for file encryption and decryption
+    encrypt_button = tk.Button(window, text="Encrypt File", command=encrypt_file)
+    encrypt_button.pack(pady=10)
 
-# Create buttons for file encryption and decryption
-encrypt_button = tk.Button(window, text="Encrypt File", command=encrypt_file)
-encrypt_button.pack(pady=10)
+    decrypt_button = tk.Button(window, text="Decrypt File", command=decrypt_file)
+    decrypt_button.pack(pady=10)
 
-decrypt_button = tk.Button(window, text="Decrypt File", command=decrypt_file)
-decrypt_button.pack(pady=10)
+    # Add status label
+    status_text = tk.Label(window, text="", fg="blue")
+    status_text.pack(pady=10)
 
-# Add status label
-status_text = tk.Label(window, text="", fg="blue")
-status_text.pack(pady=10)
+    # Run the GUI window
+    window.mainloop()
 
-# Run the GUI window
-window.mainloop()
+# Start the program
+create_gui()
+
