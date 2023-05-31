@@ -1,0 +1,127 @@
+import sys
+from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QTextEdit
+import string
+import random
+
+
+class FileEncryptionProgram(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("File Encryption Program")
+        self.setGeometry(100, 100, 400, 200)
+
+        # Create a label for program description
+        description_label = QLabel("File Encryption Program")
+        description_label.setAlignment(QtCore.Qt.AlignCenter)
+
+        # Create buttons for file encryption, decryption, and open decrypted file
+        encrypt_button = QPushButton("Encrypt File", self)
+        decrypt_button = QPushButton("Decrypt File", self)
+        open_button = QPushButton("Open Decrypted File", self)
+        open_button.setEnabled(False)
+
+        # Create a vertical layout and add widgets
+        layout = QVBoxLayout()
+        layout.addWidget(description_label)
+        layout.addWidget(encrypt_button)
+        layout.addWidget(decrypt_button)
+        layout.addWidget(open_button)
+
+        # Create a central widget and set the layout
+        central_widget = QtWidgets.QWidget()
+        central_widget.setLayout(layout)
+        self.setCentralWidget(central_widget)
+
+        # Connect the button signals to slots
+        encrypt_button.clicked.connect(self.encrypt_file)
+        decrypt_button.clicked.connect(self.decrypt_file)
+        open_button.clicked.connect(self.open_decrypted_file)
+
+        # Store the decrypted content
+        self.decrypted_content = ""
+
+    def encrypt_message(self, message, password):
+        chars = " " + string.punctuation + string.digits + string.ascii_letters
+        chars = list(chars)
+        chars.append('\n')
+
+        key = chars.copy()
+        random.shuffle(key)
+
+        cipher_text = ""
+        for letter in message:
+            if letter == '\n':
+                cipher_text += '\n'
+            else:
+                index = chars.index(letter)
+                cipher_text += key[index]
+        return cipher_text
+
+    def decrypt_message(self, message, password):
+        chars = " " + string.punctuation + string.digits + string.ascii_letters
+        chars = list(chars)
+        chars.append('\n')
+
+        key = chars.copy()
+        random.shuffle(key)
+
+        plain_text = ""
+        for letter in message:
+            if letter == '\n':
+                plain_text += '\n'
+            else:
+                index = key.index(letter)
+                plain_text += chars[index]
+        return plain_text
+
+    def encrypt_file(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Select File", "", "Text Files (*.txt);;All Files (*)")
+        if filename:
+            password, ok = QtWidgets.QInputDialog.getText(self, "Password", "Enter a password for encryption:", QtWidgets.QLineEdit.Password, "", QtCore.Qt.Dialog)
+            if ok and password:
+                with open(filename, 'r') as file:
+                    content = file.read()
+                encrypted_content = self.encrypt_message(content, password)
+                save_filename, _ = QFileDialog.getSaveFileName(self, "Save Encrypted File", "", "Text Files (*.txt);;All Files (*)", options=QFileDialog.DontUseNativeDialog)
+                if save_filename:
+                    with open(save_filename, 'w') as file:
+                        file.write(encrypted_content)
+                    QMessageBox.information(self, "Encryption Successful", "File encrypted and saved successfully.")
+                else:
+                    QMessageBox.warning(self, "Encryption Canceled", "File encryption was canceled.")
+            else:
+                QMessageBox.warning(self, "Password Required", "Please enter a password for encryption.")
+
+    def decrypt_file(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Select File", "", "Text Files (*.txt);;All Files (*)")
+        if filename:
+            password, ok = QtWidgets.QInputDialog.getText(self, "Password", "Enter the password for decryption:", QtWidgets.QLineEdit.Password, "", QtCore.Qt.Dialog)
+            if ok and password:
+                with open(filename, 'r') as file:
+                    content = file.read()
+                self.decrypted_content = self.decrypt_message(content, password)
+                save_filename, _ = QFileDialog.getSaveFileName(self, "Save Decrypted File", "", "Text Files (*.txt);;All Files (*)", options=QFileDialog.DontUseNativeDialog)
+                if save_filename:
+                    with open(save_filename, 'w') as file:
+                        file.write(self.decrypted_content)
+                    QMessageBox.information(self, "Decryption Successful", "File decrypted and saved successfully.")
+                    self.open_button.setEnabled(True)
+                else:
+                    QMessageBox.warning(self, "Decryption Canceled", "File decryption was canceled.")
+            else:
+                QMessageBox.warning(self, "Password Required", "Please enter the password for decryption.")
+
+    def open_decrypted_file(self):
+        text_edit = QTextEdit(self.decrypted_content)
+        text_edit.setReadOnly(True)
+        text_edit.setWindowTitle("Decrypted File")
+        text_edit.setGeometry(100, 100, 400, 400)
+        text_edit.show()
+
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    window = FileEncryptionProgram()
+    window.show()
+    sys.exit(app.exec_())
