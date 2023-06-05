@@ -8,12 +8,12 @@ import random
 class FileEncryptionProgram(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("File Encryption Program")
-        self.setGeometry(100, 100, 400, 200)
+        self.setWindowTitle("Mr.Wrath")
+        self.setGeometry(800, 500, 400, 200)
 
         # Create a label for program description
-        description_label = QLabel("File Encryption Program")
-        description_label.setAlignment(QtCore.Qt.AlignCenter)
+        description_label = QLabel("!!  Welcome to Adv ECODECO  !!")
+        description_label.setAlignment(QtCore.Qt.AlignCenter)       
 
         # Create buttons for file encryption, decryption, and open decrypted file
         encrypt_button = QPushButton("Encrypt File", self)
